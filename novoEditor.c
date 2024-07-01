@@ -12,10 +12,10 @@ typedef struct No {
 } No;
 
 void gotoxy(int x, int y) {
-    COORD coord;
+    COORD coord; // COORD é uma struct da biblioteca para definir posição
     coord.X = x;
     coord.Y = y;
-    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord); // posiciona o cursor no lugar onde ele foi clicado.
 }
 
 void adicionarElemento(No** cabeca, int linha, int coluna, char caracter) {
@@ -131,9 +131,9 @@ void modoEdicao(No** cabeca, char nomeTexto[]) {
     int key;
 
     if (*cabeca != NULL) {
-        exibirTexto(*cabeca);
+        exibirTexto(*cabeca); // arquivo existente (edição)
     } else {
-        gotoxy(0, 0);
+        gotoxy(0, 0); // arquivo novo
     }
 
     while (1) {
@@ -220,13 +220,14 @@ int main() {
 
         switch (menu) {
         case 1:
-            printf("Digite o nome do arquivo para salvar o texto: ");
+            printf("Digite o nome do arquivo para salvar o texto (.txt): ");
             scanf("%s", nomeTexto);
             fflush(stdin);
+            system("cls");
             modoEdicao(&cabeca, nomeTexto);
             break;
         case 2:
-            printf("Digite o nome do arquivo para ler o texto: ");
+            printf("Digite o nome do arquivo para ler o texto (.txt): ");
             scanf("%s", nomeTexto);
             fflush(stdin);
             lerArquivoTexto(&cabeca, nomeTexto);
@@ -235,7 +236,7 @@ int main() {
             liberarLista(&cabeca);
             break;
         case 3:
-            printf("Digite o nome do arquivo para editar o texto: ");
+            printf("Digite o nome do arquivo para editar o texto (.txt): ");
             scanf("%s", nomeTexto);
             fflush(stdin);
             lerArquivoTexto(&cabeca, nomeTexto);
