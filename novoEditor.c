@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <conio.h>
 #include <windows.h>
 
@@ -95,11 +94,27 @@ void liberarLista(No** cabeca) {
 int main() {
     int linhas = 0;
     int colunas = 0;
+    int menu;
     int key;
 
     gotoxy(0, 0);
 
     No* cabeca = NULL;
+
+    printf("*** MENU ***\n\n");
+    printf("1 - Criar texto\n2 - Ler texto\n\n");
+    printf("Digite sua opcao: ");
+    scanf("%d", &menu);
+
+    switch(menu){ 
+        case 1:
+            break;
+        case 2:
+            break;
+        default:
+            printf("Na");
+            break;
+    }
 
     while (1) {
         key = _getch();
@@ -139,7 +154,7 @@ int main() {
             key = _getch();
             switch (key) {
                 case 72:  // Tecla de seta para cima
-                    if (linhas > 0) linhas--;
+                    linhas--;
                     gotoxy(colunas, linhas);
                     break;
                 case 80:  // Tecla de seta para baixo
@@ -147,7 +162,7 @@ int main() {
                     gotoxy(colunas, linhas);
                     break;
                 case 75:  // Tecla de seta para esquerda
-                    if (colunas > 0) colunas--;
+                    colunas--;
                     gotoxy(colunas, linhas);
                     break;
                 case 77:  // Tecla de seta para direita
@@ -155,15 +170,15 @@ int main() {
                     gotoxy(colunas, linhas);
                     break;
             }
-        } else {  // Caracteres imprimíveis
+        } else {  // Caracteres imprim�veis
             printf("%c", key);
             adicionarElemento(&cabeca, linhas, colunas, key);
             colunas++;
         }
     }
 
-    printf("\nNúmero de linhas: %d\n", linhas + 1);  // +1 para considerar a linha atual
-    printf("Número de colunas: %d\n", colunas);
+    printf("\nNumero de linhas: %d\n", linhas);
+    printf("Numero de colunas: %d\n", colunas);
 
     salvarMatrizEmArquivo(cabeca);
 
