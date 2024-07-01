@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <conio.h>
 #include <windows.h>
+#include <stdlib.h>
 
 typedef struct No {
     int linha;
@@ -39,8 +40,8 @@ void adicionarElemento(No** cabeca, int linha, int coluna, char caracter) {
     }
 }
 
-void salvarMatrizEmArquivo(No* cabeca) {
-    FILE* arquivo = fopen("matriz.txt", "w");
+void salvarMatrizEmArquivo(No* cabeca, char nomeTexto[]) {
+    FILE* arquivo = fopen(nomeTexto, "w");
     if (arquivo == NULL) {
         printf("Erro ao abrir o arquivo.\n");
         return;
@@ -78,7 +79,7 @@ void salvarMatrizEmArquivo(No* cabeca) {
     }
 
     fclose(arquivo);
-    printf("Matriz salva no arquivo 'matriz.txt'.\n");
+    printf("Matriz salva no arquivo %s.\n", nomeTexto);
 }
 
 void liberarLista(No** cabeca) {
@@ -91,29 +92,48 @@ void liberarLista(No** cabeca) {
     *cabeca = NULL;
 }
 
-int main() {
+void lerArquivoTexto(No** cabeca, char nomeTexto[]) {
+    FILE* arquivo = fopen(nomeTexto, "r");
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo %s.\n", nomeTexto);
+        return;
+    }
+
+    int linha = 0;
+    int coluna = 0;
+    char ch;
+    while ((ch = fgetc(arquivo)) != EOF) {
+        if (ch == '\n') {
+            linha++;
+            coluna = 0;
+        } else {
+            adicionarElemento(cabeca, linha, coluna, ch);
+            coluna++;
+        }
+    }
+
+    fclose(arquivo);
+}
+
+void exibirTexto(No* cabeca) {
+    system("cls");
+    No* atual = cabeca;
+    while (atual != NULL) {
+        gotoxy(atual->coluna, atual->linha);
+        printf("%c", atual->caracter);
+        atual = atual->proximo;
+    }
+}
+
+void modoEdicao(No** cabeca, char nomeTexto[]) {
     int linhas = 0;
     int colunas = 0;
-    int menu;
     int key;
 
-    gotoxy(0, 0);
-
-    No* cabeca = NULL;
-
-    printf("*** MENU ***\n\n");
-    printf("1 - Criar texto\n2 - Ler texto\n\n");
-    printf("Digite sua opcao: ");
-    scanf("%d", &menu);
-
-    switch(menu){ 
-        case 1:
-            break;
-        case 2:
-            break;
-        default:
-            printf("Na");
-            break;
+    if (*cabeca != NULL) {
+        exibirTexto(*cabeca);
+    } else {
+        gotoxy(0, 0);
     }
 
     while (1) {
@@ -131,7 +151,7 @@ int main() {
                 colunas--;
                 printf(" ");
                 gotoxy(colunas, linhas);
-                No* atual = cabeca;
+                No* atual = *cabeca;
                 while (atual != NULL) {
                     if (atual->linha == linhas && atual->coluna == colunas) {
                         No* anterior = atual->anterior;
@@ -139,7 +159,7 @@ int main() {
                         if (anterior != NULL) {
                             anterior->proximo = proximo;
                         } else {
-                            cabeca = proximo;
+                            *cabeca = proximo;
                         }
                         if (proximo != NULL) {
                             proximo->anterior = anterior;
@@ -153,26 +173,26 @@ int main() {
         } else if (key == 224 || key == 0) {  // Verifica teclas especiais
             key = _getch();
             switch (key) {
-                case 72:  // Tecla de seta para cima
-                    linhas--;
-                    gotoxy(colunas, linhas);
-                    break;
-                case 80:  // Tecla de seta para baixo
-                    linhas++;
-                    gotoxy(colunas, linhas);
-                    break;
-                case 75:  // Tecla de seta para esquerda
-                    colunas--;
-                    gotoxy(colunas, linhas);
-                    break;
-                case 77:  // Tecla de seta para direita
-                    colunas++;
-                    gotoxy(colunas, linhas);
-                    break;
+            case 72:  // Tecla de seta para cima
+                linhas--;
+                gotoxy(colunas, linhas);
+                break;
+            case 80:  // Tecla de seta para baixo
+                linhas++;
+                gotoxy(colunas, linhas);
+                break;
+            case 75:  // Tecla de seta para esquerda
+                colunas--;
+                gotoxy(colunas, linhas);
+                break;
+            case 77:  // Tecla de seta para direita
+                colunas++;
+                gotoxy(colunas, linhas);
+                break;
             }
-        } else {  // Caracteres imprim�veis
+        } else {  // Caracteres imprimíveis
             printf("%c", key);
-            adicionarElemento(&cabeca, linhas, colunas, key);
+            adicionarElemento(cabeca, linhas, colunas, key);
             colunas++;
         }
     }
@@ -180,9 +200,56 @@ int main() {
     printf("\nNumero de linhas: %d\n", linhas);
     printf("Numero de colunas: %d\n", colunas);
 
-    salvarMatrizEmArquivo(cabeca);
+    salvarMatrizEmArquivo(*cabeca, nomeTexto);
 
-    liberarLista(&cabeca);
+    liberarLista(cabeca);
+}
+
+int main() {
+    int menu;
+    char nomeTexto[100];
+    No* cabeca = NULL;
+
+    while (1) {
+        system("cls");
+        printf("*** MENU ***\n\n");
+        printf("1 - Criar texto\n2 - Ler texto\n3 - Editar texto\n4 - Sair\n");
+        printf("Digite sua opcao: ");
+        scanf("%d", &menu);
+        fflush(stdin);
+
+        switch (menu) {
+        case 1:
+            printf("Digite o nome do arquivo para salvar o texto: ");
+            scanf("%s", nomeTexto);
+            fflush(stdin);
+            modoEdicao(&cabeca, nomeTexto);
+            break;
+        case 2:
+            printf("Digite o nome do arquivo para ler o texto: ");
+            scanf("%s", nomeTexto);
+            fflush(stdin);
+            lerArquivoTexto(&cabeca, nomeTexto);
+            exibirTexto(cabeca);
+            _getch();
+            liberarLista(&cabeca);
+            break;
+        case 3:
+            printf("Digite o nome do arquivo para editar o texto: ");
+            scanf("%s", nomeTexto);
+            fflush(stdin);
+            lerArquivoTexto(&cabeca, nomeTexto);
+            modoEdicao(&cabeca, nomeTexto);
+            break;
+        case 4:
+            printf("Finalizando o editor.\n");
+            liberarLista(&cabeca);
+            return 0;
+        default:
+            printf("Opcao invalida.\n");
+            break;
+        }
+    }
 
     return 0;
 }
